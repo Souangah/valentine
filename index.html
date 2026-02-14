@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code & Love - Saint Valentin Forum</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Montserrat:wght@200;400;600&family=Parisienne&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --accent: #ff0a54;
+            --soft-pink: #ff85a1;
+            --deep-pink: #f72585;
+            --gold: #f7d08a;
+        }
+
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background: #0d0208; color: white;
+            font-family: 'Montserrat', sans-serif;
+            overflow: hidden; display: flex;
+            justify-content: center; align-items: center;
+            perspective: 1200px;
+        }
+
+        #bg-canvas { 
+            position: absolute; top: 0; left: 0; z-index: 1; 
+            background: radial-gradient(circle at center, #3d0c21 0%, #050505 100%);
+        }
+
+        .main-card {
+            position: relative; z-index: 10;
+            text-align: center; cursor: pointer;
+            width: 90%; max-width: 550px;
+            padding: 50px 30px;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6), inset 0 0 25px rgba(255, 10, 84, 0.2);
+            transition: transform 0.3s ease-out;
+            transform-style: preserve-3d;
+        }
+
+        .name-hero {
+            font-family: 'Parisienne', cursive;
+            font-size: clamp(2.2rem, 7vw, 4rem);
+            background: linear-gradient(120deg, var(--soft-pink) 30%, #fff 50%, var(--soft-pink) 70%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shine 3s linear infinite;
+            filter: drop-shadow(0 0 10px rgba(255, 10, 84, 0.5));
+            margin-bottom: 25px;
+        }
+
+        @keyframes shine { to { background-position: 200% center; } }
+
+        .content-wrapper {
+            max-height: 0; opacity: 0;
+            transform: translateZ(30px) scale(0.8);
+            transition: all 0.9s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .active .content-wrapper {
+            max-height: 600px; opacity: 1; transform: translateZ(60px) scale(1);
+        }
+
+        .code-snippet {
+            font-family: 'Courier New', monospace;
+            color: var(--soft-pink);
+            background: rgba(0, 0, 0, 0.4);
+            padding: 15px;
+            border-radius: 12px;
+            display: inline-block;
+            margin-bottom: 25px;
+            border-left: 4px solid var(--accent);
+            font-size: 0.85rem;
+            text-align: left;
+        }
+
+        .text-body {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            font-weight: 300;
+            margin-bottom: 20px;
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+        .final-wish {
+            font-family: 'Cinzel', serif;
+            font-size: 1.5rem;
+            color: var(--gold);
+            text-shadow: 0 0 20px rgba(247, 208, 138, 0.8);
+            margin-top: 30px;
+            transform: scale(0);
+            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.6s;
+        }
+
+        .active .final-wish { transform: scale(1); }
+
+        .hint {
+            font-size: 0.7rem; letter-spacing: 4px; color: var(--soft-pink);
+            text-transform: uppercase; margin-top: 30px;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.08); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="bg-canvas"></canvas>
+
+    <div class="main-card" id="trigger">
+        <h1 class="name-hero">Aux Développeuses du Forum</h1>
+        
+        <div class="content-wrapper">
+            <div class="code-snippet">
+                // Patching loneliness... <br>
+                if (user.location === 'Forum') { <br>
+                &nbsp;&nbsp;sendHeart({ type: 'Pink', count: Infinity }); <br>
+                }
+            </div>
+            <p class="text-body">
+                À toutes les passionnées de ce <b>forum</b> :<br>
+                Que votre code soit élégant, vos bugs inexistants,<br>
+                et votre journée remplie de bonheur pur.
+            </p>
+            <div class="final-wish">Joyeuse Saint-Valentin ❤️</div>
+        </div>
+
+        <div id="instruction" class="hint">Compiler les vœux du Forum</div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        const card = document.getElementById('trigger');
+        let particles = [];
+
+        function init() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            particles = Array.from({length: 80}, () => ({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                size: Math.random() * 14 + 4,
+                speed: Math.random() * 0.7 + 0.2,
+                angle: Math.random() * Math.PI * 2,
+                opacity: Math.random() * 0.5 + 0.2
+            }));
+        }
+
+        function drawHeart(x, y, size, opacity) {
+            ctx.fillStyle = `rgba(255, 10, 84, ${opacity})`;
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.bezierCurveTo(x - size/2, y - size/2, x - size, y + size/3, x, y + size);
+            ctx.bezierCurveTo(x + size, y + size/3, x + size/2, y - size/2, x, y);
+            ctx.fill();
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.y -= p.speed;
+                p.x += Math.sin(p.angle) * 0.4;
+                p.angle += 0.015;
+                if(p.y < -30) p.y = canvas.height + 30;
+                drawHeart(p.x, p.y, p.size, p.opacity);
+            });
+            requestAnimationFrame(animate);
+        }
+
+        // Parallaxe 3D
+        document.addEventListener('mousemove', (e) => {
+            if(!card.classList.contains('active')) {
+                const xAxis = (window.innerWidth / 2 - e.pageX) / 30;
+                const yAxis = (window.innerHeight / 2 - e.pageY) / 30;
+                card.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+            }
+        });
+
+        // Activation
+        card.addEventListener('click', () => {
+            if(card.classList.contains('active')) return;
+            card.classList.add('active');
+            card.style.transform = "rotateY(0deg) rotateX(0deg) scale(1.02)";
+            document.getElementById('instruction').style.opacity = '0';
+            
+            // Triple vagues de cœurs
+            for(let i=0; i<3; i++) {
+                setTimeout(createBurst, i * 400);
+            }
+        });
+
+        function createBurst() {
+            const icons = ["💗", "💖", "✨", "❤️", "💕", "💝", "🌸"];
+            for(let i=0; i<45; i++) {
+                const p = document.createElement('div');
+                p.innerHTML = icons[Math.floor(Math.random() * icons.length)];
+                p.style.cssText = `
+                    position: absolute; left: 50%; top: 50%;
+                    font-size: ${Math.random() * 20 + 20}px;
+                    pointer-events: none; z-index: 100;
+                    filter: drop-shadow(0 0 10px var(--accent));
+                `;
+                document.body.appendChild(p);
+
+                const angle = Math.random() * Math.PI * 2;
+                const dist = 150 + Math.random() * 350;
+
+                p.animate([
+                    { transform: 'translate(-50%, -50%) scale(0)', opacity: 0 },
+                    { transform: 'translate(-50%, -50%) scale(1.3)', opacity: 1, offset: 0.15 },
+                    { transform: `translate(${-50 + Math.cos(angle)*dist}px, ${-50 + Math.sin(angle)*dist}px) scale(0)`, opacity: 0 }
+                ], { duration: 2500, easing: 'cubic-bezier(0.1, 1, 0.1, 1)' }).onfinish = () => p.remove();
+            }
+        }
+
+        window.addEventListener('resize', init);
+        init();
+        animate();
+    </script>
+</body>
+</html>
